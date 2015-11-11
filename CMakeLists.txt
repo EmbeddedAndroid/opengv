@@ -22,8 +22,14 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 OPTION(BUILD_TESTS "Build tests" ON)
 OPTION(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 OPTION(BUILD_PYTHON "Build Python extension" OFF)
+OPTION(BUILD_POSITION_INDEPENDENT_CODE "Build position independent code (-fPIC)" ON)
 
 add_definitions (-Wall -march=native -O3) #TODO use correct c++11 def once everybody has moved to gcc 4.7 # for now I even removed std=gnu++0x
+
+IF(BUILD_POSITION_INDEPENDENT_CODE)
+  add_definitions( -fPIC )
+ENDIF()
+
 
 # get eigen (and boost under windows)
 IF(WIN32)
@@ -158,7 +164,6 @@ IF(WIN32)
   add_library( random_generators test/random_generators.cpp test/random_generators.hpp test/experiment_helpers.cpp test/experiment_helpers.hpp test/time_measurement.cpp test/time_measurement.hpp )
 ELSE()
   add_library( opengv ${OPENGV_SOURCE_FILES} ${OPENGV_HEADER_FILES} )
-  set_property( TARGET opengv PROPERTY POSITION_INDEPENDENT_CODE 1 )
   add_library( random_generators test/random_generators.cpp test/random_generators.hpp test/experiment_helpers.cpp test/experiment_helpers.hpp test/time_measurement.cpp test/time_measurement.hpp )
   target_link_libraries(random_generators opengv)
 ENDIF()

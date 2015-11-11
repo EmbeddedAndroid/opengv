@@ -17,4 +17,4 @@ before_script:
   - cmake .. -DBUILD_TESTS=ON -DBUILD_PYTHON=ON
 
 script:
-  - make
+  - make -j2

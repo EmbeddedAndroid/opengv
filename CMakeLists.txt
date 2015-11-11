@@ -20,6 +20,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 OPTION(BUILD_TESTS "Build tests" ON)
+OPTION(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 OPTION(BUILD_PYTHON "Build Python extension" OFF)
 
 add_definitions (-Wall -march=native -O3) #TODO use correct c++11 def once everybody has moved to gcc 4.7 # for now I even removed std=gnu++0x
@@ -156,12 +157,9 @@ IF(WIN32)
   add_library( opengv ${OPENGV_SOURCE_FILES} ${OPENGV_HEADER_FILES} )
   add_library( random_generators test/random_generators.cpp test/random_generators.hpp test/experiment_helpers.cpp test/experiment_helpers.hpp test/time_measurement.cpp test/time_measurement.hpp )
 ELSE()
-  add_library( opengv_object OBJECT ${OPENGV_SOURCE_FILES} ${OPENGV_HEADER_FILES} )
-  set_property( TARGET opengv_object PROPERTY POSITION_INDEPENDENT_CODE 1 )
-  add_library( opengv SHARED $<TARGET_OBJECTS:opengv_object> )
-  add_library( opengv_static STATIC $<TARGET_OBJECTS:opengv_object> )
-
-  add_library( random_generators SHARED test/random_generators.cpp test/random_generators.hpp test/experiment_helpers.cpp test/experiment_helpers.hpp test/time_measurement.cpp test/time_measurement.hpp )
+  add_library( opengv ${OPENGV_SOURCE_FILES} ${OPENGV_HEADER_FILES} )
+  set_property( TARGET opengv PROPERTY POSITION_INDEPENDENT_CODE 1 )
+  add_library( random_generators test/random_generators.cpp test/random_generators.hpp test/experiment_helpers.cpp test/experiment_helpers.hpp test/time_measurement.cpp test/time_measurement.hpp )
   target_link_libraries(random_generators opengv)
 ENDIF()
 
@@ -215,7 +213,12 @@ if (BUILD_TESTS)
   target_link_libraries( test_point_cloud_sac opengv random_generators )
 endif()
 
-install(TARGETS opengv LIBRARY DESTINATION lib)
+install(
+  TARGETS opengv
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  COMPONENT library
+)
 
 if (BUILD_PYTHON)
   add_subdirectory( python )
